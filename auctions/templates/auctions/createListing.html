@@ -1,0 +1,13 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+    <form action="{% url 'save' %}" method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 20px;" class="form-control-plaintext">{{ forms.title.label }}: {{ forms.title }}</div>
+        <div style="margin-bottom: 20px;" class="form-control-plaintext">{{ forms.description.label }}: {{ forms.description }}</div>
+        <div style="margin-bottom: 20px;" class="form-control-plaintext">{{ forms.starting_bid.label }}: {{ forms.starting_bid }}</div>
+        <div style="margin-bottom: 20px;" class="form-control-plaintext">{{ forms.img_link.label }}: {{ forms.img_link }}</div>
+        <div style="margin-bottom: 20px;" class="form-control-plaintext">{{ forms.category.label }}: {{ forms.category }}</div>
+        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+    </form>
+{% endblock %}

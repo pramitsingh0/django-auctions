@@ -1,10 +1,40 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.forms import widgets, ModelForm
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import reverse
+from django import forms
+from django.contrib.auth.decorators import login_required
 
-from .models import User
+from .models import AuctionListing, User
+
+
+#-----------------------------------------------#
+#--------------------FORMS----------------------#
+#-----------------------------------------------#
+class CreateListingForms(forms.Form):
+    
+    """Create Form for Auction Listing Model"""
+    title = forms.CharField(label="Item Title", max_length=20, widget=forms.TextInput(attrs={
+                                                                    "autocomplete":"off",
+                                                                    "label":"title",
+                                                                    "class":"form-control"
+                                                                }))
+    description = forms.CharField(label="Item Description", widget=forms.Textarea(attrs={
+                                                                "label":"description",
+                                                                "class":"form-control"
+                                                            }))
+    starting_bid = forms.DecimalField(label="Starting Bid")
+    img_link = forms.URLField(label="Image link", widget=forms.URLInput(attrs={
+                                                        "class":"form-control"
+                                                    }))
+    category = forms.ChoiceField(choices=AuctionListing.CATEGORY)
+
+
+    class Meta:
+        model = AuctionListing
+        fields = ['title', 'description', 'starting_bid', 'seller', 'imglink', 'reporter']
 
 
 def index(request):
@@ -61,3 +91,35 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+def create_listing_form(request):
+    return render(request, "auctions/createListing.html", {
+        "forms": CreateListingForms()
+    })
+
+@login_required(login_url="login")
+def save_listing(request):
+    if request.method == "POST":
+        form = CreateListingForms(request.POST)
+        if form.is_valid():
+            title = form.cleaned_data['title']
+            description = form.cleaned_data['description']
+            starting_bid = form.cleaned_data['starting_bid']
+            img_link = form.cleaned_data['img_link']
+            category = form.cleaned_data['category']
+
+        auction_listing = AuctionListing(
+            seller = User.objects.get(pk=request.user.id),
+            title = title,
+            description = description,
+            starting_bid = starting_bid,
+            category = category,
+            imglink = img_link
+        )            
+        auction_listing.save()
+        return redirect('index')
+
+    else:
+        return render(request, "auctions/createListing.html", {
+            "form": CreateListingForms()
+        })
