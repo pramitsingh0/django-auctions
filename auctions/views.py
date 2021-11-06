@@ -38,7 +38,10 @@ class CreateListingForms(forms.Form):
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    active_listing = AuctionListing.objects.filter(open=True)
+    return render(request, "auctions/index.html", {
+        "auction_items": active_listing
+    })
 
 
 def login_view(request):
@@ -107,6 +110,7 @@ def save_listing(request):
             starting_bid = form.cleaned_data['starting_bid']
             img_link = form.cleaned_data['img_link']
             category = form.cleaned_data['category']
+            
 
         auction_listing = AuctionListing(
             seller = User.objects.get(pk=request.user.id),

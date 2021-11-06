@@ -1,7 +1,17 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
-
-    TODO
+    <h3>Active Listings</h2>
+    
+    <div>
+        {% for item in auction_items %}
+            <div class="card" style="width: 18rem; margin-bottom: 1rem; margin-left: 2rem; padding: 5px; float: left;" >
+                <img src="{{ item.imglink }}" alt="Image of the item" class="card-img-top">
+                <h4 class="card-title">{{ item.title }}</h4>
+                <p class="card-text">{{ item.description }}<br>{{ item.current_price }}</p>
+                
+            </div>
+        {% endfor %}
+            
+    </div>
 {% endblock %}
