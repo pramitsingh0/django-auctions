@@ -8,7 +8,7 @@
         <div>{{ message }}</div>
     {% endif %}
 
-    <form action="{% url 'register' %}" method="post">
+    <form action="{% url 'register' %}" method="post"class="mx-auto card shadow" style="width: 45%; padding: 15px;">
         {% csrf_token %}
         <div class="form-group">
             <input class="form-control" autofocus type="text" name="username" placeholder="Username">
@@ -22,9 +22,9 @@
         <div class="form-group">
             <input class="form-control" type="password" name="confirmation" placeholder="Confirm Password">
         </div>
-        <input class="btn btn-primary" type="submit" value="Register">
+        <input class="btn btn-primary mx-auto" type="submit" value="Register" style="display: inline-block; width: fit-content;">
     </form>
 
-    Already have an account? <a href="{% url 'login' %}">Log In here.</a>
+    <div class="mx-auto" style="width: 45%; white-space: nowrap; margin-top: 10px;">Already have an account? <a href="{% url 'login' %}">Log In here.</a> </div>
 
 {% endblock %}

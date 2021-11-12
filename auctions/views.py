@@ -7,7 +7,7 @@ from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
 
-from .models import AuctionListing, User
+from .models import AuctionListing, User, Watchlist, Bids
 
 
 #-----------------------------------------------#
@@ -30,11 +30,22 @@ class CreateListingForms(forms.Form):
                                                         "class":"form-control"
                                                     }))
     category = forms.ChoiceField(choices=AuctionListing.CATEGORY)
+    
 
 
     class Meta:
         model = AuctionListing
         fields = ['title', 'description', 'starting_bid', 'seller', 'imglink', 'reporter']
+
+class BiddingForms(forms.Form):
+    bid_amount = forms.DecimalField(label="Bid Amount")
+
+
+
+
+# --------------------------------------------------------------#
+# -----------------------------VIEWS----------------------------#
+# --------------------------------------------------------------#
 
 
 def index(request):
@@ -127,3 +138,119 @@ def save_listing(request):
         return render(request, "auctions/createListing.html", {
             "form": CreateListingForms()
         })
+
+def view_listing(request, auction_id):
+    try:
+        item = AuctionListing.objects.get(pk=auction_id)
+    except:
+        return render(request, "auctions/error404.html", {
+            "code": 404,
+            "message": "Auction Item not found"
+        })
+    
+    if request.user.is_authenticated:
+        auction_item = Watchlist.objects.filter(auction=auction_id, user=User.objects.get(id=request.user.id)).first()
+
+        if auction_item is not None:
+            on_watchlist = True
+        else: 
+            on_watchlist = False
+    else:
+        on_watchlist = False
+    
+    return render(request, "auctions/listingpage.html", {
+        "item": item,
+        "on_watchlist": on_watchlist,
+        "bidding_form": BiddingForms()
+    })
+
+@login_required(login_url='login')
+def watchlist(request):
+    if request.method == "POST":
+        watchlist_item = request.POST.get("item_id")
+        try:
+            item = AuctionListing.objects.get(pk=watchlist_item)
+            user = User.objects.get(id=request.user.id)
+        except:
+            return render(request, "auctions/error404.html", {
+                "code": 404,
+                "message": "Item doesn't exist"
+            })
+        auction_item = Watchlist.objects.filter(auction=item, user=User.objects.get(id=request.user.id)).first()
+        
+        if request.POST.get("on_watchlist") == "True":
+            try:
+                remove_watchlist = Watchlist.objects.filter(auction=item, user=user)
+                remove_watchlist.delete()
+            except:
+                return render(request, "auctions/error404.html", {
+                    "code": 409,
+                    "message": "Error Accessing Watchlist"
+                })
+            
+        else:
+            try: 
+                add_watchlist = Watchlist(auction=item, user=user)
+                add_watchlist.save()
+            except:
+                return render(request, "auctions/error404.html", {
+                    "code": 300,
+                    "message": "Cannot save to database"
+                })
+            
+            
+        return HttpResponseRedirect("/listingpage/" + watchlist_item)
+    else:
+        return render(request, "auctions/error404.html")
+
+@login_required(login_url='login')   
+def bidding(request):
+    if request.method == "POST":
+        bid_amount = BiddingForms(request.POST)
+        if bid_amount.is_valid():
+            bid_amount = float(bid_amount.cleaned_data['bid_amount'])
+            auction_id = request.POST.get("item_id")
+            if bid_amount <= 0:
+                return render(request, "auctions/error404.html", {
+                    "code": 400,
+                    "message": "Bid amount too low."
+                })
+            try:
+                auction = AuctionListing.objects.get(pk=auction_id)
+                user = User.objects.get(id=request.user.id)
+            except:
+                return render(request, "auctions/error404.html", {
+                    "code": 309,
+                    "message": "Item not found."
+                })
+            if auction.seller == user:
+                return render(request, "auctions/error404.html", {
+                    "code": 400,
+                    "message": "Seller cannot bid on his item"
+                })
+            
+            highest_bid = Bids.objects.filter(item=auction).order_by('-bid_amount').first()
+
+            if highest_bid is None or bid_amount > highest_bid.bid_amount:
+                # return HttpResponse("Success")
+                
+                newbid = Bids(item=auction, user=user, bid_amount=bid_amount)
+                newbid.save()
+
+                auction.current_price = bid_amount
+                auction.save()
+
+                return HttpResponseRedirect("/listingpage/" + auction_id)
+                # return HttpResponse("Success")
+                
+            else:
+                return render(request, "auctions/error404.html", {
+                    "code": 300,
+                    "message": "Cannot place bid. Bid value lower then highest bid"
+                })
+        else:
+            return render(request, "auctions/error404.html", {
+                    "code": 300,
+                    "message": "Invalid Bid"
+                })
+        

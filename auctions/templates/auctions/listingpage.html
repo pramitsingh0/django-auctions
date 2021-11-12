@@ -1,0 +1,59 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+
+    <!-- First Card containing name and description -->
+    <div class="card shadow mx-auto" style="padding: 10px; width: 100rem;">
+        {% if item.imglink %}
+            <img src="{{ item.imglink }}" alt="Image of {{ item.title }}" class="card-img-top mx-auto" style="width: 50%; height: auto;" >
+        {% endif %}
+        <div style="margin-top: 20px">
+            <h4 class="card-title" style="float: left;">{{ item.title }}</h4>
+            <!-- Watchlist button -->
+            {% if user.is_authenticated  and user.id != auction.seller.id %}
+                <form action="{% url 'watchlist' %}" method="post">
+                    {% csrf_token %}
+                    {% if not on_watchlist %}
+                        <input type="hidden" name="on_watchlist" value="False">
+                        <button type="submit" class="btn btn-success" style="float: right; margin-left: 8px;"> Add to watchlist </button>
+                    {% else %}
+                        <input type="hidden" name="on_watchlist" value="True">
+                        <button type="submit" class="btn btn-danger" style="float: right; margin-left: 8px;">Remove From Watchlist</button>
+                    {% endif %}
+                    <input type="hidden" name="item_id" id="item_id" value="{{ item.id }}">
+                </form>
+                <div style="clear:both;"></div>
+                <!-- Bidding Form -->
+                <div>
+                    <form action="{% url 'bid' %}" method="post">
+                        {% csrf_token %}
+                        {{ bidding_form }}
+                        <input type="hidden" name="item_id" id="item_id" value="{{ item.id }}">
+
+                        <button type="submit" class="btn btn-warning">Submit Bid</button>
+                    </form>
+                </div>
+            {% endif %}
+            <div style="clear:both"></div>
+            <hr>
+            Description: {{ item.description }} <br>
+            Starting Bid: {{ item.starting_bid }} <br>
+            Current Price: {{ item.current_price }}<br>
+            {% if message %}
+                {{ message }}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Second Card containing Seller and Category -->
+    <div class="card shadow mx-auto" style="padding: 10px; margin-top: 30px; width: 100rem;">
+        <h3 class="card-title">Details: </h3>
+        <ul>
+            <li> Seller: {{ item.seller }}</li>
+            <li>Category: {{ item.get_category_display }}</li>
+        </ul>
+    </div>
+
+    <!-- Create a div containing comment box -->
+        <!-- TODO -->
+{% endblock %}

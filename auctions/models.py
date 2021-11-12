@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models.deletion import CASCADE
 
 
 class User(AbstractUser):
@@ -39,7 +40,25 @@ class AuctionListing(models.Model):
     def __str__(self):
         return f"{self.id}: {self.title} {self.description}"
 class Bids(models.Model):
-    pass
+    item = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=CASCADE, related_name="bids", null=True)
+    bid_amount = models.DecimalField(max_digits=11, decimal_places=2, default=0.0)
+
+    class Meta:
+        verbose_name = "bid"
+
+    def __str__(self):
+        return f"{self.user} bid {self.bid_amount} $ on {self.item.title}"
 
 class Comments(models.Model):
     pass
+
+class Watchlist(models.Model):
+    auction = models.ForeignKey(AuctionListing, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watchlist")
+    class Meta:
+        verbose_name = "watchlist"
+        unique_together = ['auction', 'user']
+    def __str__(self):
+        return f"{self.auction.title} is on {self.user}'s watchlist"
+    
