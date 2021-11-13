@@ -147,7 +147,20 @@ def view_listing(request, auction_id):
             "code": 404,
             "message": "Auction Item not found"
         })
-    
+    highest_bid = Bids.objects.filter(item=item).order_by('-bid_amount').first()
+    if item.open == False:
+        if highest_bid is not None:
+            winner = highest_bid.user
+
+            # Diffrent view for winner, seller and other users
+            if request.user == item.seller:
+                return render(request, "auctions/sold.html", {
+                    "highest_bid": highest_bid
+                })
+            elif request.user.id == winner.id:
+                return render(request, "auctions/bought.html", {
+                    "auction": item
+                })
     if request.user.is_authenticated:
         auction_item = Watchlist.objects.filter(auction=auction_id, user=User.objects.get(id=request.user.id)).first()
 
@@ -155,13 +168,18 @@ def view_listing(request, auction_id):
             on_watchlist = True
         else: 
             on_watchlist = False
+            
     else:
-        on_watchlist = False
+        on_watchlist = False\
+
+    
+        
     
     return render(request, "auctions/listingpage.html", {
         "item": item,
         "on_watchlist": on_watchlist,
-        "bidding_form": BiddingForms()
+        "bidding_form": BiddingForms(),
+        "highest_bid": highest_bid
     })
 
 @login_required(login_url='login')
@@ -210,11 +228,6 @@ def bidding(request):
         if bid_amount.is_valid():
             bid_amount = float(bid_amount.cleaned_data['bid_amount'])
             auction_id = request.POST.get("item_id")
-            if bid_amount <= 0:
-                return render(request, "auctions/error404.html", {
-                    "code": 400,
-                    "message": "Bid amount too low."
-                })
             try:
                 auction = AuctionListing.objects.get(pk=auction_id)
                 user = User.objects.get(id=request.user.id)
@@ -223,6 +236,12 @@ def bidding(request):
                     "code": 309,
                     "message": "Item not found."
                 })
+            if bid_amount <= 0 or bid_amount < auction.starting_bid:
+                return render(request, "auctions/error404.html", {
+                    "code": 400,
+                    "message": "Bid amount too low."
+                })
+            
             if auction.seller == user:
                 return render(request, "auctions/error404.html", {
                     "code": 400,
@@ -232,7 +251,6 @@ def bidding(request):
             highest_bid = Bids.objects.filter(item=auction).order_by('-bid_amount').first()
 
             if highest_bid is None or bid_amount > highest_bid.bid_amount:
-                # return HttpResponse("Success")
                 
                 newbid = Bids(item=auction, user=user, bid_amount=bid_amount)
                 newbid.save()
@@ -241,7 +259,6 @@ def bidding(request):
                 auction.save()
 
                 return HttpResponseRedirect("/listingpage/" + auction_id)
-                # return HttpResponse("Success")
                 
             else:
                 return render(request, "auctions/error404.html", {
@@ -253,4 +270,17 @@ def bidding(request):
                     "code": 300,
                     "message": "Invalid Bid"
                 })
+
+@login_required(login_url='login')
+def close_auction(request):
+    if request.method == "POST":
+        item_id = request.POST.get("item_id")
+        auction_item = AuctionListing.objects.get(pk=item_id)
+        auction_item.open = False
+        auction_item.save()
+        highest_bid = Bids.objects.filter(item=auction_item).order_by('-bid_amount').first()
+        return render(request, "auctions/sold.html", {
+            "highest_bid": highest_bid
+        })
+    return redirect('index')
         

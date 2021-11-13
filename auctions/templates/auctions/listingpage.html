@@ -10,7 +10,7 @@
         <div style="margin-top: 20px">
             <h4 class="card-title" style="float: left;">{{ item.title }}</h4>
             <!-- Watchlist button -->
-            {% if user.is_authenticated  and user.id != auction.seller.id %}
+            {% if user.is_authenticated  and user.username != item.seller %}
                 <form action="{% url 'watchlist' %}" method="post">
                     {% csrf_token %}
                     {% if not on_watchlist %}
@@ -33,14 +33,27 @@
                         <button type="submit" class="btn btn-warning">Submit Bid</button>
                     </form>
                 </div>
+            
+            {% elif user.is_authenticated and user.username == item.seller %}
+                <!-- Close Auction -->
+                <div>
+                    <form action="{% url 'close' %}" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="item_id" id="item_id" value="{{ item.id }}">
+                        <button type="submit" name="open" value="False" class="btn btn-danger" style="float: right;">Close Auction</button>
+                        <div style="clear: both;"></div>
+                    </form>
+                </div>
             {% endif %}
             <div style="clear:both"></div>
             <hr>
             Description: {{ item.description }} <br>
             Starting Bid: {{ item.starting_bid }} <br>
             Current Price: {{ item.current_price }}<br>
-            {% if message %}
-                {{ message }}
+            {% if highest_bid %}
+                Highest bid by: {{ highest_bid.user }}
+            {% else %}
+                No bids yet
             {% endif %}
         </div>
     </div>
@@ -53,6 +66,9 @@
             <li>Category: {{ item.get_category_display }}</li>
         </ul>
     </div>
+
+    <!-- Winning Message -->
+    
 
     <!-- Create a div containing comment box -->
         <!-- TODO -->
