@@ -5,7 +5,7 @@
     <!-- First Card containing name and description -->
     <div class="card shadow mx-auto" style="padding: 10px; width: 100rem;">
         {% if item.imglink %}
-            <img src="{{ item.imglink }}" alt="Image of {{ item.title }}" class="card-img-top mx-auto" style="width: 50%; height: auto;" >
+            <img src="{{ item.imglink }}" alt="Image of {{ item.title }}" class="card-img-top mx-auto" style="width: fit-content; max-width: 100%; height: auto;" >
         {% endif %}
         <div style="margin-top: 20px">
             <h4 class="card-title" style="float: left;">{{ item.title }}</h4>
@@ -51,9 +51,13 @@
             Starting Bid: {{ item.starting_bid }} <br>
             Current Price: {{ item.current_price }}<br>
             {% if highest_bid %}
-                Highest bid by: {{ highest_bid.user }}
+                Highest bidder: {{ highest_bid.user }}
             {% else %}
                 No bids yet
+            {% endif %}
+            
+            {% if item.open == False %}
+                <div class="alert alert-primary">Auction Closed! Winner is {{ highest_bid.user }}</div>
             {% endif %}
         </div>
     </div>
@@ -69,7 +73,39 @@
 
     <!-- Winning Message -->
     
+    <!-- Comment box -->
+    <div class="card shadow mx-auto" style="padding: 10px; margin-top: 30px; width:100rem;">
+        <h3 class="card-title">Add new comment: </h3>
+    <div style="width: 60rem;">
+        <form action="{% url 'addcomment' %}" method="post">
+                {% csrf_token %}
+                <div style="margin-left: 50px;">
+                    <textarea name="comment" id="comment" cols="20" rows="4" class="form-control" style="width: 56rem;"></textarea>
+                    <input type="hidden" name="item_id" id="item_id" value="{{ item.id }}">
+                    <button type="submit" class="btn btn-primary" style="float: right; margin: 5px;">Comment</button>
+                </div>
+        </form>
+        <div style="clear: both; height: 40px;"></div>
+        <ul>
+            
+            {% for comment in comments %}
+            <div class="card shadow" style="padding: 10px;">
+                <li style="list-style-type: none;">
+                    <div class="card text-dark bg-light mb-3">
+                        <div class="card-header">
+                            <div style="color: blue; float: left;">{{ comment.user }}</div>
+                            <div style="float: right;">{{ comment.comment_date }}</div>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text" style="margin-left: 40px;">{{ comment.comments }}</p>
+                        </div>
+                    </div>
+                    
+                </li>
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
 
-    <!-- Create a div containing comment box -->
-        <!-- TODO -->
+        
 {% endblock %}

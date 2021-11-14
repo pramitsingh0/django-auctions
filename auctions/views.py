@@ -7,7 +7,7 @@ from django.urls import reverse
 from django import forms
 from django.contrib.auth.decorators import login_required
 
-from .models import AuctionListing, User, Watchlist, Bids
+from .models import AuctionListing, Comments, User, Watchlist, Bids
 
 
 #-----------------------------------------------#
@@ -106,6 +106,9 @@ def register(request):
     else:
         return render(request, "auctions/register.html")
 
+# --------------------------------------------- #
+# ------------------My Views------------------- #
+# --------------------------------------------- #
 def create_listing_form(request):
     return render(request, "auctions/createListing.html", {
         "forms": CreateListingForms()
@@ -172,14 +175,16 @@ def view_listing(request, auction_id):
     else:
         on_watchlist = False\
 
-    
+    #fetch comments
+    comments = Comments.objects.filter(auction_item=auction_id).order_by('-comment_date')
         
     
     return render(request, "auctions/listingpage.html", {
         "item": item,
         "on_watchlist": on_watchlist,
         "bidding_form": BiddingForms(),
-        "highest_bid": highest_bid
+        "highest_bid": highest_bid,
+        "comments": comments
     })
 
 @login_required(login_url='login')
@@ -194,7 +199,6 @@ def watchlist(request):
                 "code": 404,
                 "message": "Item doesn't exist"
             })
-        auction_item = Watchlist.objects.filter(auction=item, user=User.objects.get(id=request.user.id)).first()
         
         if request.POST.get("on_watchlist") == "True":
             try:
@@ -283,4 +287,19 @@ def close_auction(request):
             "highest_bid": highest_bid
         })
     return redirect('index')
+
+def add_comments(request):
+    if request.method == "POST":
+        item_id = request.POST.get("item_id")
+        comment = request.POST.get("comment")
+        auction_item = AuctionListing.objects.get(pk=item_id)
+        user = User.objects.get(id=request.user.id)
+        new_comment = Comments(auction_item=auction_item, user=user, comments=comment)
+        new_comment.save()
+        return HttpResponseRedirect("/listingpage/" + item_id)
         
+    else:
+        return render(request, "error404.html", {
+            "code": 404,
+            "message": "Method not allowed"
+        })

@@ -51,7 +51,16 @@ class Bids(models.Model):
         return f"{self.user} bid {self.bid_amount} $ on {self.item.title}"
 
 class Comments(models.Model):
-    pass
+    auction_item = models.ForeignKey(AuctionListing, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments", null=True)
+    comments = models.TextField(blank=False, default="Good")
+    comment_date = models.DateTimeField(auto_now_add=True, null=True)
+
+    class Meta:
+        verbose_name = "comment"
+    
+    def __str__(self):
+        return f"Comment {self.id} on item: {self.auction_item.title} by {self.user.username}"
 
 class Watchlist(models.Model):
     auction = models.ForeignKey(AuctionListing, on_delete=models.CASCADE)
