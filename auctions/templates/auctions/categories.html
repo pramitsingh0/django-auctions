@@ -1,0 +1,9 @@
+{% extends 'auctions/layout.html' %}
+
+{% block body %}
+    {% for item in categories %}
+        <div style="margin: 30px;">
+            <a href="{% url 'viewcategories' type=item%}" class="alert alert-primary" >{{ item }}</a> <br>
+        </div>
+    {% endfor %}
+{% endblock %}

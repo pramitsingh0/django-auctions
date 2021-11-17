@@ -30,6 +30,10 @@
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary btn-sm" href="{% url 'logout' %}" style="margin-right: 1rem;">Log Out</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary btn-sm" href="{% url 'viewwatchlist' %}" style="margin-right: 1rem;">Watchlist</a>
+                    </li>
+
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link btn btn-primary btn-sm" href="{% url 'login' %}" style="margin-right: 1rem;">Log In</a>
@@ -38,6 +42,16 @@
                         <a class="nav-link btn btn-primary btn-sm" href="{% url 'register' %}" style="margin-right: 1rem;">Register</a>
                     </li>
                 {% endif %}
+                <!-- Categories -->
+                <div class="category">
+                    <a href="{% url 'categories' %}">
+                        <button type="button" class="btn btn-danger">
+                                Categories
+                        </button>
+                    </a>
+                </div>
+                <!-- Currently bidding -->
+                <div></div>
             </ul>
         </div>
         <hr>

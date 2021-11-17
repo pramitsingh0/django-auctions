@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.forms import widgets, ModelForm
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, request
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django import forms
@@ -302,4 +302,33 @@ def add_comments(request):
         return render(request, "error404.html", {
             "code": 404,
             "message": "Method not allowed"
+        })
+
+@login_required(login_url='login')
+def view_watchlist(request):
+    watchlist_auctions_ids = User.objects.get(id=request.user.id).watchlist.values_list("auction")
+    watchlist_items = AuctionListing.objects.filter(id__in=watchlist_auctions_ids)
+    return render(request, "auctions/watchlist.html", {
+        "watchlist_items": watchlist_items
+    })
+
+def categories(request):
+    category_list = AuctionListing.CATEGORY
+    full_category = [item[1] for item in category_list]
+
+    
+    return render(request, "auctions/categories.html", {
+        "categories": full_category,
+
+    })
+
+def view_categories(request, type):
+    category_list = AuctionListing.CATEGORY
+    full_category = [x[1] for x in category_list]
+    if type in full_category:
+        short_category = [x[0] for x in category_list if type == x[1]]
+        category_item = AuctionListing.objects.filter(category=short_category[0])
+        return render(request, "auctions/view_category.html", {
+            "category_items": category_item,
+            "head": type
         })

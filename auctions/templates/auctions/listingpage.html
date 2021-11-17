@@ -24,6 +24,7 @@
                 </form>
                 <div style="clear:both;"></div>
                 <!-- Bidding Form -->
+                {% if item.open %}
                 <div>
                     <form action="{% url 'bid' %}" method="post">
                         {% csrf_token %}
@@ -33,6 +34,7 @@
                         <button type="submit" class="btn btn-warning">Submit Bid</button>
                     </form>
                 </div>
+                {% endif %}
             
             {% elif user.is_authenticated and user.username == item.seller %}
                 <!-- Close Auction -->
@@ -100,7 +102,6 @@
                             <p class="card-text" style="margin-left: 40px;">{{ comment.comments }}</p>
                         </div>
                     </div>
-                    
                 </li>
             </div>
             {% endfor %}
