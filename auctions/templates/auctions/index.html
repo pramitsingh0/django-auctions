@@ -7,7 +7,9 @@
         {% for item in auction_items %}
         <a href="{% url 'listingPage' auction_id=item.id %}">
             <div class="card shadow" style="width: 18rem; margin-bottom: 1rem; margin-left: 2rem; padding: 5px; float: left;" >
-                <img src="{{ item.imglink }}" alt="Image of the item" class="card-img-top">
+                <div style="height: 20rem;width: 18rem;">
+                    <img src="{{ item.imglink }}" alt="Image of the item" class="card-img-top" style="width: 95%; height: 100%;">
+                </div>
                 <h4 class="card-title">{{ item.title }}</h4>
                 <p class="card-text">{{ item.description }}<br>{{ item.current_price }}</p>
             </div>

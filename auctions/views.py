@@ -312,22 +312,13 @@ def view_watchlist(request):
         "watchlist_items": watchlist_items
     })
 
-def categories(request):
-    category_list = AuctionListing.CATEGORY
-    full_category = [item[1] for item in category_list]
-
-    
-    return render(request, "auctions/categories.html", {
-        "categories": full_category,
-
-    })
 
 def view_categories(request, type):
     category_list = AuctionListing.CATEGORY
     full_category = [x[1] for x in category_list]
     if type in full_category:
         short_category = [x[0] for x in category_list if type == x[1]]
-        category_item = AuctionListing.objects.filter(category=short_category[0])
+        category_item = AuctionListing.objects.filter(category=short_category[0], open=True)
         return render(request, "auctions/view_category.html", {
             "category_items": category_item,
             "head": type
