@@ -16,6 +16,7 @@ class AuctionListing(models.Model):
     TOYS = "TOY"
     BUSSINES_INDUSTRIAL = "BUS"
     MUSIC = "MUS"
+    STATIONARY = "STN"
 
     CATEGORY = [
         (MOTORS, "Motors"),
@@ -27,6 +28,7 @@ class AuctionListing(models.Model):
         (TOYS, "Toys"),
         (BUSSINES_INDUSTRIAL, "Business & Industrial"),
         (MUSIC, "Music"),
+        (STATIONARY, "Stationary")
     ]
     title = models.CharField(max_length=64)
     description = models.TextField()
@@ -34,7 +36,7 @@ class AuctionListing(models.Model):
     current_price = models.DecimalField(max_digits=11, decimal_places=2, default=0.0)
 
     seller = models.CharField(max_length=64)
-    imglink = models.URLField(max_length=200, default=None, null=True)
+    imglink = models.URLField(max_length=200, default=None, null=True, blank=True)
     category = models.CharField(max_length=3, choices=CATEGORY)
     open = models.BooleanField(default=True)
     def __str__(self):
