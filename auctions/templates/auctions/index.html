@@ -4,6 +4,9 @@
     <h3>Active Listings</h2>
     
     <div>
+        {% if auction_items|length < 1 %}
+        <h1 class="alert alert-secondary mx-auto" style="width: fit-content;">No Items up for auction</h1>
+        {% endif %}
         {% for item in auction_items %}
         <a href="{% url 'listingPage' auction_id=item.id %}">
             <div class="card shadow" style="width: 18rem; margin-bottom: 1rem; margin-left: 2rem; padding: 5px; float: left;" >

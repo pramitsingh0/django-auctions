@@ -1,8 +1,7 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-
-
+    <div id="login-container">
     {% if message %}
         <div>{{ message }}</div>
     {% endif %}
@@ -20,6 +19,7 @@
         <input class="btn btn-primary mx-auto" type="submit" value="Login" style="width: fit-content;">
         <div class="mx-auto" style="width: fit-content; white-space: nowrap;">Don't have an account? <a href="{% url 'register' %}">Register here.</a></div>
     </form>
+    </div>
 
 
 {% endblock %}

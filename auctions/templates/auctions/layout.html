@@ -11,8 +11,8 @@
 
     </head>
     <body>
-        <div >
-            <h1>Auctions</h1>
+        <div id="nav-container">
+            <h1 style="font-weight: bold;">Auctions</h1>
             <div style="float: left;">
                 {% if user.is_authenticated %}
                 Signed in as <strong>{{ user.username }}</strong>.
@@ -55,8 +55,6 @@
                       {% endfor %}
                     </ul>
                 </div>
-                <!-- Currently bidding -->
-                
             </ul>
         </div>
         <hr>
