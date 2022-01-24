@@ -22,6 +22,12 @@ $ cd django-auctions
     ```
 
 ### Usage
+
+
+
+https://user-images.githubusercontent.com/52959209/150792074-3b284f24-72fb-40e5-b576-98c7857aaa72.mp4
+
+
 Make migrations to the database:
 ```
 $ python manage.py makemigrations
