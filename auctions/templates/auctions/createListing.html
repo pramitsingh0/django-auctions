@@ -1,6 +1,7 @@
 {% extends 'auctions/layout.html' %}
 
 {% block body %}
+    <div class="card shadow w-75 mx-auto p-3">
     <form action="{% url 'save' %}" method="post">
         {% csrf_token %}
         <div style="margin-bottom: 20px;" class="form-control-plaintext">{{ forms.title.label }}: {{ forms.title }}</div>
@@ -10,4 +11,5 @@
         <div style="margin-bottom: 20px;" class="form-control-plaintext">{{ forms.category.label }}: {{ forms.category }}</div>
         <button type="submit" class="btn btn-primary btn-sm">Submit</button>
     </form>
+    </div>
 {% endblock %}
